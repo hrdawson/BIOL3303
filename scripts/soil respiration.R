@@ -9,7 +9,7 @@ source("scripts/functions/Li6400Helper--Li6400Import_revised.R")
 
 # Import the data ----
 # Make a list of all your LI6400 files
-SR_file_list = dir(path = "raw_data/LI6400_SR/LI6400_files/subset",
+SR_file_list = dir(path = "raw_data/LI6400",
                    full.names = TRUE, recursive = TRUE)
 
 # temp_SR_data = purrr::map_dfr(SR_file_list, Li6400Import_Data)
