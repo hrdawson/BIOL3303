@@ -1,16 +1,21 @@
 # Import and analyses LI600 data
 
+library(tidyverse)
+library(tidylog)
+
+source("scripts/functions/Li600Import.R")
+
 # Import data -----
-LI600_header = read.csv("raw_data/LI600/Auto gsw+F_LI-COR Default_2025_02_20_15_03_33_1.csv", skip = 1, header = FALSE) |>
-  slice(1) |>
-  t() |>
-  pull()
+# Make a list of all your LI600 files
+LI600_file_list = dir(path = "raw_data/LI600",
+                   full.names = TRUE, recursive = TRUE)
 
-LI600_raw = read.csv("raw_data/LI600/Auto gsw+F_LI-COR Default_2025_02_20_15_03_33_1.csv", skip = 1)
+LI600_raw = map_df(set_names(LI600_file_list), function(file) {
+  file %>%
+    purrr::set_names() %>%
+    map_df(~ Li600Import_Bulk(file))
+})
 
-
-LI600_long = LI600_raw |>
-  pivot_longer(cols = c(gsw:H2O_leaf, Fs:Qamb))
 # Clean the data ----
 LI600_clean = LI600_raw |>
   # Remove non-obs
