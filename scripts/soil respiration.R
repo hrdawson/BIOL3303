@@ -12,14 +12,8 @@ source("scripts/functions/Li6400Helper--Li6400Import_revised.R")
 SR_file_list = dir(path = "raw_data/LI6400",
                    full.names = TRUE, recursive = TRUE)
 
-# temp_SR_data = purrr::map_dfr(SR_file_list, Li6400Import_Data)
-
-# For this next step, put your cursor onto the FIRST line (`temp_SR_data_raw`) before clicking run
-temp_SR_data_raw = map_df(set_names(SR_file_list), function(file) {
-  file %>%
-    purrr::set_names() %>%
-    map_df(~ Li6400Import_Data(file))
-})
+## Read them in
+temp_SR_data_raw = purrr::map_dfr(SR_file_list, Li6400Import_Data)  # This applies the read.dat function to each file and binds them together into a single dataframe
 
 # Here's some code to modify if the LICOR insists that it saved a file as only an XLS
 # temp_SR_data_xls = read.csv("raw_data/LI6400_SR/field_session_3-3.02.2025/2025.02.06_pi-o-sr_.csv", skip = 9) |>
