@@ -13,7 +13,7 @@ SR_file_list = dir(path = "raw_data/LI6400",
                    full.names = TRUE, recursive = TRUE)
 
 ## Read them in
-temp_SR_data_raw = purrr::map_dfr(SR_file_list, Li6400Import_Data)  # This applies the read.dat function to each file and binds them together into a single dataframe
+SR_raw_data_temp = purrr::map_dfr(SR_file_list, Li6400Import_Data)  # This applies the read.dat function to each file and binds them together into a single dataframe
 
 # Here's some code to modify if the LICOR insists that it saved a file as only an XLS
 # temp_SR_data_xls = read.csv("raw_data/LI6400_SR/field_session_3-3.02.2025/2025.02.06_pi-o-sr_.csv", skip = 9) |>
@@ -30,17 +30,17 @@ temp_SR_data_raw = purrr::map_dfr(SR_file_list, Li6400Import_Data)  # This appli
 #   select(Obs, HHMMSS, remark, File, variable, value)
 
 # If all your files are the same type, run this code
-temp_SR_data = temp_SR_data_raw |>
+SR_temp = SR_raw_data_temp |>
   pivot_wider(names_from = variable, values_from = value)
 
 # If you're working with both raw and XLS data, unhash and run this code
-# temp_SR_data = bind_rows(temp_SR_data_raw, temp_SR_data_xls) |>
+# SR_temp = bind_rows(SR_raw_data_temp, temp_SR_data_xls) |>
 #    pivot_wider(names_from = variable, values_from = value)
 
 # Format and clean the data ----
 # Use code to flag outliers and measurements you know are duds
 # I've added code for the most common problems but you can supplement with your own
-SR_data_raw = temp_SR_data |>
+SR_raw = SR_temp |>
   # Filter out non-obs
   drop_na(EFFLUX) |>
   # Filter to just the averaged efflux (final value)
@@ -61,13 +61,13 @@ SR_data_raw = temp_SR_data |>
   ))
 
 ## Visualise the flagged data ----
-ggplot(SR_data_raw,
+ggplot(SR_raw,
        aes(x = plot_remarks, y = EFFLUX, colour = flag_data)) +
   geom_point() +
   theme_bw()
 
 # Filter the flagged data ----
-SR_clean = SR_data_raw |>
+SR_clean = SR_raw |>
   filter(flag_data == "Okay")
 
 # Export the flagged data ----
