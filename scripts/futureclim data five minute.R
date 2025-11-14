@@ -7,12 +7,11 @@ library(janitor)
 source("scripts/functions/readdat.R")
 # Make dataset -----
 ## Make a list of all the files to read in
-FutureClim_file_list = dir("raw_data/FutureClim", pattern = "*.dat", full.names = TRUE, recursive = TRUE)
+FutureClim_file_list = dir("raw_data/FutureClim/FiveMin", pattern = "*.dat", full.names = TRUE, recursive = TRUE)
 
 ## Read them in
 FutureClim_temp = purrr::map_dfr(FutureClim_file_list, read.dat) # This applies the read.dat function to each file and binds them together into a single dataframe
   
-
 # Work on cleaning the data ----
 FutureClim_raw = FutureClim_temp |>
   # Make the datetime readable to R
@@ -40,9 +39,19 @@ FutureClim_raw = FutureClim_temp |>
 FutureClim_clean = FutureClim_raw |>
   # select the relevant data
   filter(variable_short %in% c("VWC", "Temp")) |>
-  select(TIMESTAMP, RECORD, block, variable_short, value, depth_cm, trt) |>
+  # Calculate hourly averages
+  mutate(date = date(TIMESTAMP),
+         hour = hour(TIMESTAMP)) |>
+  group_by(date, hour, block, trt, depth_cm, variable_short) |>
+  summarize(mean_value = mean(value)) |>
+  ungroup() |>
+  mutate(datetime = ymd_hm(paste0(date, " ", hour, ":00"))) |>
+  select(-c(date, hour)) |>
   # tidy up names
   mutate(variable_short = str_to_lower(variable_short)) |>
   # make wide form for ease of use
-  pivot_wider(names_from = variable_short, values_from = value, names_prefix = "soil_")
-  
+  pivot_wider(names_from = variable_short, values_from = mean_value, names_prefix = "soil_") |>
+  relocate(datetime)
+
+# Export data ----
+write.csv(FutureClim_clean, paste0("outputs/", Sys.Date(), "_FutureClim_soil_data.csv"), row.names = FALSE)
