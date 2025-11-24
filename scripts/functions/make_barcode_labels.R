@@ -29,13 +29,33 @@ make_barcode_labels <- function(uniqueID, filename) {
     Fsz = 14,
     Across = TRUE,
     trunc = TRUE,
-    numrow = 12,
-    numcol = 4,
+    numrow = 13,
+    numcol = 5,
     page_width = 8.3,
     page_height = 11.7,
     width_margin = 0.2,
-    height_margin = 0.7,
-    label_width = 1.811,
+    height_margin = 0.5,
+    label_width = 1.5,
+    label_height = 0.5
+  )
+}
+
+make_barcode_sheet <- function(uniqueID, filename) {
+  baRcodeR::custom_create_PDF(
+    Labels = uniqueID$hashcode,
+    name = filename,
+    type = "linear",
+    Fsz = 14,
+    Across = TRUE,
+    trunc = TRUE,
+    numrow = 13,
+    numcol = 6,
+    ECols = 2,
+    page_width = 8.3,
+    page_height = 11.7,
+    width_margin = 0.2,
+    height_margin = 0.5,
+    label_width = 1.5,
     label_height = 0.5
   )
 }
