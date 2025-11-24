@@ -8,3 +8,5 @@ all_codes$hashcode[1:5]
 
 # make PDF of codes ----
 make_barcode_labels(all_codes, "outputs/BIOL3303_barcodes")
+
+make_barcode_sheet(all_codes, "outputs/BIOL3303_barcodes")
